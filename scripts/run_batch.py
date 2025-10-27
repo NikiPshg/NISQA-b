@@ -94,7 +94,7 @@ if __name__ == "__main__":
     model = model_init(args)
 
     file_paths = [
-        '/home/nikita/nisqa-opt/NISQA-s/src/nisqab/sample/gt.wav',
+        '/home/nikita/nisqa-opt/NISQA-s/src/nisqab/sample/noisy.wav',
     ]*128
     
     device = "cuda" if torch.cuda.is_available() else "cpu"

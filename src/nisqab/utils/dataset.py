@@ -56,16 +56,22 @@ class NISQADataset(Dataset):
     def get_librosa_melspec(self, file_path: str) -> torch.Tensor:
         '''Calculate mel-spectrograms with Librosa'''
         try:
-            wav, sr = torchaudio.load(file_path, sr=None)
+            wav, sr = torchaudio.load(file_path)
             wav = torchaudio.functional.resample(wav, orig_freq=sr, new_freq=self.target_sr)
         except:
             raise ValueError('Could not load file {}'.format(file_path))
         
+        if wav.ndim == 2:
+            if wav.shape[0] == 1:
+                wav = wav.squeeze(0)
+            else:
+                wav = wav.mean(dim=0)
+                
         # Convert to specified sample rate
         if wav.shape[0] < self.target_sr * 0.1:  # Very short file
             wav = torch.nn.functional.pad(wav, (0, int(self.target_sr * 0.1) - wav.shape[0]))
 
-        S = self.mel_transform(wav)
+        S = self.mel_transform(wav.unsqueeze(0)).squeeze(0)
         spec = torchaudio.transforms.AmplitudeToDB(stype='magnitude', top_db=80)(S)
 
         return spec
