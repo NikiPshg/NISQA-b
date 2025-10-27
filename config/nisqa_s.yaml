@@ -69,9 +69,9 @@ td_lstm_dropout: 0
 td_lstm_bidirectional: true  # use bidirectional LSTM -> hidden units x 2
 
 # Arguments for inference
-ckp: src/weights/nisqa_s.tar # checkpoint that will be used for inference
-sample: src/sample/gt.wav # path to file to run on
-inf_device: cpu # device for inference runs
+ckp: src/nisqab/weights/nisqa_s.tar # checkpoint that will be used for inference
+sample: src/nisqab/sample/gt.wav # path to file to run on
+inf_device: cuda # device for inference runs
 warmup: False # warmup run before inference; usually is not needed on CPU runs
 
 #Microphone inference specifics

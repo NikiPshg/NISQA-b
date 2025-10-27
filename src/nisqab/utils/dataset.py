@@ -5,6 +5,7 @@ from torch.utils.data import Dataset
 import librosa
 from typing import Dict
 import torchaudio
+from time import time
 
 class NISQADataset(Dataset):    
     def __init__(
@@ -36,6 +37,22 @@ class NISQADataset(Dataset):
         self.hop_length = int(self.target_sr * self.hop_length)
         self.win_length = int(self.target_sr * self.win_length)
         
+        self.mel_transform = torchaudio.transforms.MelSpectrogram(
+            sample_rate=self.target_sr,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            win_length=self.win_length,
+            window_fn=torch.hann_window, 
+            center=True,
+            pad_mode="reflect",
+            power=1.0, 
+            n_mels=self.n_mels,
+            f_min=0.0,
+            f_max=self.fmax,
+            norm='slaney',        
+            mel_scale='slaney',     # (или htk=False)
+            onesided=True 
+        )
     def get_librosa_melspec(self, file_path: str) -> torch.Tensor:
         '''Calculate mel-spectrograms with Librosa'''
         try:
@@ -47,26 +64,10 @@ class NISQADataset(Dataset):
         # Convert to specified sample rate
         if y.shape[0] < self.target_sr * 0.1:  # Very short file
             y = np.pad(y, (0, int(self.target_sr * 0.1) - y.shape[0]))
+
+        S2 = self.mel_transform(torch.from_numpy(y).unsqueeze(0)).squeeze(0)
         
-
-        S = librosa.feature.melspectrogram(
-            y=y,
-            sr=self.target_sr,
-            n_fft=self.n_fft,
-            hop_length=self.hop_length,
-            win_length=self.win_length,
-            window='hann',
-            center=True,
-            pad_mode='reflect',
-            power=1.0,
-            n_mels=self.n_mels,
-            fmin=0.0,
-            fmax=self.fmax,
-            htk=False,
-            norm='slaney',
-        )
-
-        spec = librosa.core.amplitude_to_db(S, ref=1.0, amin=1e-4, top_db=80.0)
+        spec = torchaudio.transforms.AmplitudeToDB(stype='magnitude', top_db=80)(S2)
         return torch.tensor(spec, dtype=torch.float32)
     
     def segment_specs(self, x: torch.Tensor) -> Tuple(torch.Tensor, torch.Tensor):

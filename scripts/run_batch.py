@@ -5,11 +5,11 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from multiprocessing import cpu_count
 
-from src.core.model_torch import model_init
-from src.utils.file_utils import yamlparser
-from src.utils.dataset import NISQADataset, collate_fn
-from src.utils.audio_cache import create_audio_length_cache
-from src.utils.audio_sampler import LengthBasedBatchSampler
+from src.nisqab.core.model_torch import model_init
+from src.nisqab.utils.file_utils import yamlparser
+from src.nisqab.utils.dataset import NISQADataset, collate_fn
+from src.nisqab.utils.audio_cache import create_audio_length_cache
+from src.nisqab.utils.audio_sampler import LengthBasedBatchSampler
 
 import librosa as lb
 
@@ -94,17 +94,17 @@ if __name__ == "__main__":
     model = model_init(args)
 
     file_paths = [
-        '/mnt/disk1tb/radio-v4/0/00/2e9e42509af2.opus',
-    ]*2
+        '/home/nikita/nisqa-opt/NISQA-s/src/nisqab/sample/gt.wav',
+    ]*4096
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    batch_size = 32
+    batch_size = 64
     
     cache_file = "./audio_lengths_cache.json"
     audio_lengths = create_audio_length_cache(
         file_paths=file_paths,
         cache_file=cache_file,
-        num_workers=min(4, cpu_count()),
+        num_workers=min(32, cpu_count()),
         force_rebuild=False
     )
     
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         device=device,
         batch_size=batch_size,
         dtype=torch.bfloat16,
-        num_workers=min(4, cpu_count()),
+        num_workers=min(32, cpu_count()),
     )
-    print(results)
+    print(results[0])
 
