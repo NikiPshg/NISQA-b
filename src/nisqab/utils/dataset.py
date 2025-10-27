@@ -56,19 +56,19 @@ class NISQADataset(Dataset):
     def get_librosa_melspec(self, file_path: str) -> torch.Tensor:
         '''Calculate mel-spectrograms with Librosa'''
         try:
-            y, sr = librosa.load(file_path, sr=None)
-            y = librosa.resample(y, orig_sr=sr, target_sr=self.target_sr)
+            wav, sr = torchaudio.load(file_path, sr=None)
+            wav = torchaudio.functional.resample(wav, orig_freq=sr, new_freq=self.target_sr)
         except:
             raise ValueError('Could not load file {}'.format(file_path))
         
         # Convert to specified sample rate
-        if y.shape[0] < self.target_sr * 0.1:  # Very short file
-            y = np.pad(y, (0, int(self.target_sr * 0.1) - y.shape[0]))
+        if wav.shape[0] < self.target_sr * 0.1:  # Very short file
+            wav = torch.nn.functional.pad(wav, (0, int(self.target_sr * 0.1) - wav.shape[0]))
 
-        S2 = self.mel_transform(torch.from_numpy(y).unsqueeze(0)).squeeze(0)
-        
-        spec = torchaudio.transforms.AmplitudeToDB(stype='magnitude', top_db=80)(S2)
-        return torch.tensor(spec, dtype=torch.float32)
+        S = self.mel_transform(wav)
+        spec = torchaudio.transforms.AmplitudeToDB(stype='magnitude', top_db=80)(S)
+
+        return spec
     
     def segment_specs(self, x: torch.Tensor) -> Tuple(torch.Tensor, torch.Tensor):
         '''Segment a spectrogram into "seg_length" wide spectrogram segments'''

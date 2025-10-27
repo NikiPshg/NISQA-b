@@ -95,16 +95,16 @@ if __name__ == "__main__":
 
     file_paths = [
         '/home/nikita/nisqa-opt/NISQA-s/src/nisqab/sample/gt.wav',
-    ]*4096
+    ]*128
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    batch_size = 64
+    batch_size = 16
     
     cache_file = "./audio_lengths_cache.json"
     audio_lengths = create_audio_length_cache(
         file_paths=file_paths,
         cache_file=cache_file,
-        num_workers=min(32, cpu_count()),
+        num_workers=min(4, cpu_count()),
         force_rebuild=False
     )
     
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         device=device,
         batch_size=batch_size,
         dtype=torch.bfloat16,
-        num_workers=min(32, cpu_count()),
+        num_workers=min(4, cpu_count()),
     )
     print(results[0])
 
