@@ -2,13 +2,15 @@ import argparse
 import datetime
 import os
 from pathlib import Path
+import pkg_resources
 
 import torch
 import yaml
 
 def yamlparser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--yaml", default="config/nisqa_s.yaml", type=str, help="YAML file with config")
+    default_config = pkg_resources.resource_filename('nisqab', 'nisqa_s.yaml')
+    parser.add_argument("--yaml", default=default_config, type=str, help="YAML file with config")
     args = parser.parse_args()
     args = vars(args)
     return args

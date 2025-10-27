@@ -1,5 +1,5 @@
+import pkg_resources
 import os
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -758,7 +758,12 @@ def model_init(args):
         td_lstm_bidirectional=args["td_lstm_bidirectional"],
     )
 
-    ckp = torch.load(args["ckp"], map_location="cpu")
+    if not os.path.isabs(args["ckp"]):
+        ckp_path = pkg_resources.resource_filename('nisqab', args["ckp"])
+    else:
+        ckp_path = args["ckp"]
+    
+    ckp = torch.load(ckp_path, map_location="cpu")
     model.load_state_dict(ckp["model_state_dict"], strict=True)
     model = model.to(torch.device(args["inf_device"]))
     model.eval()
