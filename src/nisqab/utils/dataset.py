@@ -2,10 +2,8 @@ from ast import Tuple
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-import librosa
 from typing import Dict
 import torchaudio
-from time import time
 
 class NISQADataset(Dataset):    
     def __init__(
@@ -53,8 +51,9 @@ class NISQADataset(Dataset):
             mel_scale='slaney',     # (или htk=False)
             onesided=True 
         )
-    def get_librosa_melspec(self, file_path: str) -> torch.Tensor:
-        '''Calculate mel-spectrograms with Librosa'''
+
+    def get_torchaudio_melspec(self, file_path: str) -> torch.Tensor:
+        '''Calculate mel-spectrograms with torchaudio'''
         try:
             wav, sr = torchaudio.load(file_path)
             wav = torchaudio.functional.resample(wav, orig_freq=sr, new_freq=self.target_sr)
@@ -114,7 +113,7 @@ class NISQADataset(Dataset):
     
     def __getitem__(self, idx):
         file_path = self.file_paths[idx]
-        spec = self.get_librosa_melspec(file_path)
+        spec = self.get_torchaudio_melspec(file_path)
         x_seg, n_wins = self.segment_specs(spec)
         
         return {

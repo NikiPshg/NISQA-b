@@ -5,13 +5,12 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from multiprocessing import cpu_count
 
-from src.nisqab.core.model_torch import model_init
-from src.nisqab.utils.file_utils import yamlparser
-from src.nisqab.utils.dataset import NISQADataset, collate_fn
-from src.nisqab.utils.audio_cache import create_audio_length_cache
-from src.nisqab.utils.audio_sampler import LengthBasedBatchSampler
+from nisqab.core.model_torch import model_init
+from nisqab.utils.file_utils import yamlparser
+from nisqab.utils.dataset import NISQADataset, collate_fn
+from nisqab.utils.audio_cache import create_audio_length_cache
+from nisqab.utils.audio_sampler import LengthBasedBatchSampler
 
-import librosa as lb
 
 def batch_inference(
     model,
@@ -87,15 +86,15 @@ def batch_inference(
 
 if __name__ == "__main__":
     args = yamlparser()
-
+    print(args)
     with open(args["yaml"], "r") as ymlfile:
         args_yaml = yaml.load(ymlfile, Loader=yaml.FullLoader)
     args = {**args_yaml, **args}
     model = model_init(args)
 
     file_paths = [
-        '/home/nikita/nisqa-opt/NISQA-s/src/nisqab/sample/noisy.wav',
-    ]*128
+        r"C:\Users\nicit\Downloads\audio_7000_82cd76cba6e7a76a6ae5.wav",
+    ]*32
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     batch_size = 16
@@ -114,7 +113,7 @@ if __name__ == "__main__":
         audio_lengths=audio_lengths,
         device=device,
         batch_size=batch_size,
-        dtype=torch.bfloat16,
+        dtype=torch.float32,
         num_workers=min(4, cpu_count()),
     )
     print(results[0])

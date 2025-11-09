@@ -8,12 +8,8 @@ import torch
 import yaml
 
 def yamlparser():
-    parser = argparse.ArgumentParser()
     default_config = pkg_resources.resource_filename('nisqab', 'nisqa_s.yaml')
-    parser.add_argument("--yaml", default=default_config, type=str, help="YAML file with config")
-    args = parser.parse_args()
-    args = vars(args)
-    return args
+    return {"yaml": default_config}
 
 def save_results(model, args, model_args, opt, epoch, loss, ep_runtime, r, db_results, best, runname, results_hist):
     """
