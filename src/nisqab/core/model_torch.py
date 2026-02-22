@@ -742,9 +742,9 @@ class Framewise(nn.Module):
 
 
 def model_init(args):
-    if not os.path.exists(args.ckp):
+    if not os.path.exists(args.get('ckp', './')):
         import subprocess
-        subprocess.run(["wget", "-P", args.ckp,  "https://github.com/gabrielmittag/NISQA/blob/fe84f0f252abec382b24367d5b22498a7ce34dbb/weights/nisqa.tar"])
+        subprocess.run(["wget", "-P", args.get('ckp', './'),  "https://github.com/gabrielmittag/NISQA/blob/fe84f0f252abec382b24367d5b22498a7ce34dbb/weights/nisqa.tar"])
         
     model = NISQA_DIM(
         cnn_c_out_1=args["cnn_c_out_1"],
